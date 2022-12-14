@@ -4,7 +4,16 @@ class Product:
         self.price = price
 
     def __repr__(self):
-        return f"Product {self.name} with price ${self.price}."
+        return f"{self.name}, {self.price}"
+
+    def __eq__(self, another_prod):
+        return self.name == another_prod.name and self.price == another.price
+
+    def __float__(self) -> float:
+        return self.price
+
+    def __str__(self) -> str:
+        return self.name
 
     def total_price(self, quantity: float = 1.0) -> float:
         return round(self.price * quantity, 2)
@@ -13,37 +22,48 @@ class Product:
 class ShoppingCart:
     def __init__(self) -> None:
         self.products = []
-        self.products_quantity = []
+        self.quantity = []
 
-    def __repr__(self):
-        return f"There are {len(self.products)} types of goods in the shopping cart."
+    def __repr__(self) -> str:
+        return f"{list(zip(self.products, self.quantity))}"
 
-    def _adding_func(self, item: object, quantity: float) -> None:
-        if item not in self.products:
-            self.products.append(item)
-            self.products_quantity.append(quantity)
+    def __float__(self):
+        return self.total_price()
+
+    def __iter__(self) -> iter:
+        return zip(self.products, self.quantity)
+
+    def add_to_cart(self, item: Product, quantity: float = 0.0) -> None:
+        if item in self.products:
+            self.quantity[self.products.index(item)] += quantity
         else:
-            self.products_quantity[self.products.index(item)] += quantity
+            self.products.append(item)
+            self.quantity.append(quantity)
 
-    def add_to_cart(self, item: object, quantity: float = 0.0) -> None:
-        if isinstance(item, Product):
-            item = [item.name, item.price]
-            self._adding_func(item, quantity)
-        elif isinstance(item, ShoppingCart):
-            for cart_item in item.products:
-                cart_item_quantity = item.products_quantity[item.products.index(cart_item)]
-                self._adding_func(cart_item, cart_item_quantity)
+    def __add__(self, prod_or_cart):
+        new_cart = ShoppingCart()
+        new_cart.products = self.products.copy()
+        new_cart.quantity = self.quantity.copy()
+
+        if isinstance(prod_or_cart, ShoppingCart):
+            for prod, quan in prod_or_cart:
+                new_cart.add_to_cart(prod, quan)
+        elif isinstance(prod_or_cart, Product):
+            new_cart.add_to_cart(prod_or_cart, 1)
+        return new_cart
 
     def total_price(self) -> float:
         price = 0.0
-        for product in self.products:
-            price += product[1] * self.products_quantity[self.products.index(product)]
+
+        for item, quantity in zip(self.products, self.quantity):
+            price += item.total_price(quantity)
         return round(price, 2)
 
     def product_list(self) -> None:
         print("Products in cart:")
-        for product in self.products:
-            print(f'{product[0]} -- ${product[1]} -- {self.products_quantity[self.products.index(product)]}')
+
+        for item, quantity in zip(self.products, self.quantity):
+            print(f'{item.name} -- ${item.price} -- {quantity}')
 
 
 if __name__ == "__main__":
