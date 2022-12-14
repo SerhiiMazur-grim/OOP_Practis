@@ -10,26 +10,25 @@ class Product:
 class ShoppingCart:
     def __init__(self) -> None:
         self.products = []
-        self.products_quantity = []
+        self.quantity = []
 
-    def add_to_cart(self, item, quantity: float = 0.0) -> None:
-        item = [item.name, item.price]
-        if item not in self.products:
-            self.products.append(item)
-            self.products_quantity.append(quantity)
+    def add_to_cart(self, item: Product, quantity: float = 0.0) -> None:
+        if item in self.products:
+            self.quantity[self.products.index(item)] += quantity
         else:
-            self.products_quantity[self.products.index(item)] += quantity
+            self.products.append(item)
+            self.quantity.append(quantity)
 
     def total_price(self) -> float:
-        price = 0
-        for product in self.products:
-            price += product[1] * self.products_quantity[self.products.index(product)]
+        price = 0.0
+        for item, quantity in zip(self.products, self.quantity):
+            price += item.total_price(quantity)
         return round(price, 2)
 
     def product_list(self) -> None:
         print("Products in cart:")
-        for product in self.products:
-            print(f'{product[0]} -- ${product[1]} -- {self.products_quantity[self.products.index(product)]}')
+        for item, quantity in zip(self.products, self.quantity):
+            print(f'{item.name} -- ${item.price} -- {quantity}')
 
 
 if __name__ == "__main__":
