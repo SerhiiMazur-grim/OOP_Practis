@@ -55,7 +55,7 @@ class ShoppingCart:
     def total_price(self) -> float:
         price = 0.0
 
-        for item, quantity in zip(self.products, self.quantity):
+        for item, quantity in self:
             price += item.total_price(quantity)
         return round(price, 2)
 
